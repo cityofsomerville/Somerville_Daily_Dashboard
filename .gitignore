@@ -1,0 +1,7 @@
+/tmp/
+/data/*
+.Rhistory
+.Rout
+config.R
+.httr-oauth
+oauth_token
