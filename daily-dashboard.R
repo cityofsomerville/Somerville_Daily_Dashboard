@@ -120,7 +120,7 @@ forMap_ci <- ci %>%
 toGeoJSON(forMap_ci, "PoliceCI", "./tmp/")
 
 ftpUpload(what = "./tmp/PoliceCI.geojson",
-          to = paste(Somerville_server, "PoliceCI.geojson"),
+          to = paste(Somerville_server, "PoliceCI.geojson", sep = ""),
           verbose = TRUE,
           userpwd = Somerville_server_userpwd, 
           prequote="CWD /var/www/dashboard/geo/daily/")
@@ -482,13 +482,13 @@ toGeoJSON(forMap_cs, "UniqueCS", "./tmp/")
 toGeoJSON(forMap_qol, "QualityOfLifeCS", "./tmp/")
 
 ftpUpload(what = "./tmp/UniqueCS.geojson",
-          to = paste(Somerville_server, "UniqueCS.geojson"),
+          to = paste(Somerville_server, "UniqueCS.geojson", sep = ""),
           verbose = TRUE,
           userpwd = Somerville_server_userpwd, 
           prequote="CWD /var/www/dashboard/geo/daily/")
 
 ftpUpload(what = "./tmp/QualityOfLifeCS.geojson",
-          to = paste(Somerville_server, "QualityOfLifeCS.geojson"),
+          to = paste(Somerville_server, "QualityOfLifeCS.geojson", sep = ""),
           verbose = TRUE,
           userpwd = Somerville_server_userpwd, 
           prequote="CWD /var/www/dashboard/geo/daily/")
@@ -549,7 +549,7 @@ forMap_isd <- isd %>%
 toGeoJSON(forMap_isd, "BuildingPermits", "./tmp/")
 
 ftpUpload(what = "./tmp/BuildingPermits.geojson",
-          to = paste(Somerville_server, "BuildingPermits.geojson"),
+          to = paste(Somerville_server, "BuildingPermits.geojson", sep = ""),
           verbose = TRUE,
           userpwd = Somerville_server_userpwd, 
           prequote="CWD /var/www/dashboard/geo/daily/")
@@ -566,7 +566,7 @@ knit("./daily.Rhtml", output = "./tmp/daily.html")
 
 # Upload to the daily dashboard
 ftpUpload(what = "./tmp/daily.html",
-          to = paste(Somerville_server, "daily.html"),
+          to = paste(Somerville_server, "daily.html", sep = ""),
           verbose = TRUE,
           userpwd = Somerville_server_userpwd, 
           prequote="CWD /var/www/dashboard/")
