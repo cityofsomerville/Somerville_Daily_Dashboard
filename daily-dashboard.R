@@ -348,7 +348,9 @@ HoursOpen <- HoursOpen %>%
 
 #### Top from last day ####
 TopFifteen_cs <- cs %>% 
-  filter(DaysAgo > -2) %>% 
+  filter(DaysAgo > -2) %>%
+  # Take out internal ones
+  filter(secondary_issue_type != "internally generated") %>% 
   group_by(typeName) %>% 
   dplyr::summarise(count=n()) %>% 
   arrange(-count) %>% 
@@ -374,6 +376,7 @@ TopFive_cs <- arrange(TopFive_cs, count)
 
 # to get the count of calls yesterday
 Yesterday_cs <- cs %>%
+  filter(secondary_issue_type != "internally generated") %>% 
   filter(DaysAgo > -2 & DaysAgo < 0)
 
 # Get average for similar type days 
@@ -390,7 +393,9 @@ CompareAverage <- function(){
   ## Compares week days to week days and weekends to weekends
   # To see if yesterday was average for calls 
   
-  cs_comporable <- cs %>% filter(DayType == yesterdayType) %>% 
+  cs_comporable <- cs %>% 
+    filter(DayType == yesterdayType) %>% 
+    filter(secondary_issue_type != "internally generated") %>%
     group_by(Date) %>% 
     summarise(n = n())
   
