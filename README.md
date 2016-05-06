@@ -17,9 +17,8 @@ For the theory and another working example, see http://danielphadley.com/How-To-
 + ~~Basic daily maps~~
 + ~~Tracking for QOL calls~~
 + ~~Make tracking weekly, rather than monthly~~
-+ Top internally-generated work orders
-+ Scrub every comment of weird characters before turning to geojson
-+ Replace rats and other QOL with actionable
++ ~~Top internally-generated work orders~~
++ ~~Scrub every comment of weird characters before turning to geojson~~
 + Find a better viz for the temperature
 + ~~Make tracking based on some measure of statistical significance~~
 + ~~Try to do charts by 7 day periods, or at least label the x-axis by max(date)~~  

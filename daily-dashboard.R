@@ -426,11 +426,10 @@ comparisonCS <- CompareAverage()
 # time series last 120 days
 TimeSeriesMaker_qol <- function(){
   
-  ##  Finds the top three that have increased most sharply ##
-  
   days <- cs %>% 
-    filter(DaysAgo > -120) %>% 
-    filter(typeName == "Rats" | typeName == "Graffiti" | typeName == "Trash/debris on sidewalk report") %>%
+    filter(DaysAgo > -120) %>%
+    filter(secondary_issue_type != "internally generated") %>% 
+    filter(typeName == "Rats" | typeName == "Graffiti" | typeName == "Pothole") %>%
     group_by(Date, typeName) %>% 
     summarise(count = n()) %>% 
     ungroup() %>% 
@@ -477,7 +476,8 @@ forTS_qol <- TimeSeriesMaker_qol()
 ## Make geojson for the top quality-of-life calls ##
 forMap_qol <- cs %>% 
   filter(DaysAgo > -8) %>% 
-  filter(typeName == "Rats" | typeName == "Graffiti" | typeName == "Trash/debris on sidewalk report") %>%
+  filter(secondary_issue_type != "internally generated") %>% 
+  filter(typeName == "Rats" | typeName == "Graffiti" | typeName == "Pothole") %>%
   select(latitude, longitude, typeName)
 
 
@@ -535,7 +535,7 @@ TopFifteen_ga <- ga.df %>%
   filter(pageTitle != "City of Somerville, Massachusetts" & 
            pageTitle != "Departments |" &
            pageTitle != "Search |" &
-           pageTitle != "Contact Us |") %>% 
+           pageTitle != "Contact Us |") %>%
   arrange(-pageviews)
 
 
@@ -561,6 +561,11 @@ Top_isd <- isd %>%
   group_by(PermitType) %>%
   dplyr::summarize(count=n()) %>%
   arrange(-count)
+
+# If more than 5, mow it down
+if(nrow(Top_isd) > 5 ){
+  Top_isd <- Top_isd[1:5,]
+}
 
 Top_isd <- arrange(Top_isd, count)
 

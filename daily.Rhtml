@@ -182,8 +182,8 @@ They load to the specified containers -->
       name: 'Rats',
             data: [<!--rinline I(forTS_qol$Rats) -->]
         }, {
-      name: 'Trash',
-            data: [<!--rinline I(forTS_qol$`Trash/debris on sidewalk report`) -->]
+      name: 'Potholes',
+            data: [<!--rinline I(forTS_qol$Pothole) -->]
         }]
     });
 
@@ -605,7 +605,7 @@ They load to the specified containers -->
 
         <br></br>
 
-        <p>We also like to keep careful track of quality of life calls. Below are calls about <FONT COLOR="#2f7ed8">graffiti</FONT>, <FONT COLOR="#0d233a">rats</FONT>, and <FONT COLOR="#8bbc21">trash</FONT>. As before, the map show calls from the last week, and the time-series chart show the last 120 days.</p>
+        <p>We also like to keep careful track of quality of life calls. Below are calls about <FONT COLOR="#2f7ed8">graffiti</FONT>, <FONT COLOR="#0d233a">rats</FONT>, and <FONT COLOR="#8bbc21">potholes</FONT>. As before, the map show calls from the last week, and the time-series chart show the last 120 days.</p>
         <div class="row">
           <div class="span6">
             <div id="QoLTSChartContainer" style="width:100%; height:400px;"></div>
@@ -635,7 +635,7 @@ They load to the specified containers -->
                 }
 
               function filling(x) {
-                return x == 'Trash/debris on sidewalk report' ? "#8bbc21" :
+                return x == 'Pothole' ? "#8bbc21" :
                        x == 'Rats' ? "#0d233a" :
                        x == 'Graffiti' ? "#2f7ed8" :
                        "#808080";
