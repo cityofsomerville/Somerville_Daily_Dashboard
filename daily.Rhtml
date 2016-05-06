@@ -352,6 +352,43 @@ They load to the specified containers -->
         }]
     });
 
+<!-- Constituent Services Internally Generated -->
+    var chart1 = new Highcharts.Chart({
+        chart: {
+            renderTo: 'AllInternalConstituentServicesContainer',
+        type: 'column'
+        },
+    title: {
+                text: 'Top Internally Generated Work, Last Week'
+            },
+         subtitle: {
+                text: 'Source: 311'
+            },
+        
+        xAxis: {
+                categories: [<!--rinline I(shQuote(Top_five_internal_cs$typeName)) -->]
+            },
+    yAxis: {
+                title: {
+                    text: 'Calls'
+                },
+                plotLines: [{
+                    value: 0,
+                    width: 1,
+                    color: '#808080'
+                }]
+            },
+    
+    legend: {
+        enabled: false
+    },
+
+        series: [{
+        name: 'Calls',
+            data: [<!--rinline I(Top_five_internal_cs$count) -->]
+          }]
+    });
+
 <!-- Google Analytics -->
     var chart1 = new Highcharts.Chart({
         chart: {
@@ -628,6 +665,18 @@ They load to the specified containers -->
             </script>
           </div>
         </div>
+
+        <br></br>
+
+          <h3 class="section header">Internally Generated Work</h3>
+          <div class="row">
+            <div class="span6">
+              <p>At the same time that they respond to 311 calls, city workers are also proactive about finding work that needs to be done, reporting it, and completing it. This chart shows the top 5 work orders that were internally generated from the last seven days.</p>
+            </div>
+            <div class="span6">
+              <div id="AllInternalConstituentServicesContainer" style="width:100%; height:400px;"></div>
+            </div>
+          </div>
 
 	    </div>
     </div>

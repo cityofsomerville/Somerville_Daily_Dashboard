@@ -501,6 +501,31 @@ ftpUpload(what = "./tmp/QualityOfLifeCS.geojson",
 
 
 
+#### Top internally-generated from yesterday ####
+Top_five_internal_cs <- cs %>% 
+  filter(DaysAgo > -8) %>%
+  # Take out internal ones
+  filter(secondary_issue_type == "internally generated") %>% 
+  group_by(typeName) %>% 
+  dplyr::summarise(count=n()) %>% 
+  arrange(-count) %>% 
+  filter(typeName != "Miscellaneous" & typeName != "Welcome desk information" & typeName != "CS-Lost call (wrong #, hang up, dead air)" & typeName != "Report Man")
+
+
+# If more than 5, mow it down
+if(nrow(Top_five_internal_cs) > 5 ){
+  Top_five_internal_cs <- Top_ten_internal_cs[1:5,]
+}
+
+
+# Arrange them for the charts
+Top_five_internal_cs <- arrange(Top_five_internal_cs, count)
+
+
+
+
+
+
 ############## Web Analytics ##############
 
 ga.df <- read.csv("//fileshare1/Departments/Somerstat/Common/Data/2015_City_Web_Analytics/raw_data/LastTwentyFour.csv")
