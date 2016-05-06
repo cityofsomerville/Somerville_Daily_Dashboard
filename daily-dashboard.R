@@ -294,7 +294,10 @@ forChart_TopThree_cs <- as.data.frame(forChart_TopThree_cs) # was having problem
 # Then the Map
 forMap_cs <- TopThreeIncreases_cs %>% 
   filter(DaysAgo > -8 & latitude != "" & latitude != 0) %>% 
-  mutate(comments = gsub('"', '', comments)) %>% # Double quotes ruin the geojson
+  mutate(# Charcs messing up geojson
+    comments = gsub("\"","", comments),
+    comments = gsub("\t", " ", comments),
+    comments = gsub('"', '', comments)) %>% 
   select(-DaysAgo)
 
 
@@ -514,14 +517,12 @@ Top_five_internal_cs <- cs %>%
 
 # If more than 5, mow it down
 if(nrow(Top_five_internal_cs) > 5 ){
-  Top_five_internal_cs <- Top_ten_internal_cs[1:5,]
+  Top_five_internal_cs <- Top_five_internal_cs[1:5,]
 }
 
 
 # Arrange them for the charts
 Top_five_internal_cs <- arrange(Top_five_internal_cs, count)
-
-
 
 
 
@@ -571,8 +572,10 @@ forMap_isd <- isd %>%
   mutate(PermitAmount = as.numeric(PermitAmount),
          Latitude = round(Latitude, 5),
          Longitude = round(Longitude, 5),
+         # Charcs messing up geojson
          ProjectName = gsub("\"","", ProjectName),
-         ProjectName = gsub("\t", " ", ProjectName)) #Charcs messing up geojson
+         ProjectName = gsub("\t", " ", ProjectName),
+         ProjectName = gsub('"', '', ProjectName))
 
 
 # Convert to geojson and put it on our server
