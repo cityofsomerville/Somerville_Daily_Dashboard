@@ -12,7 +12,9 @@
 setwd("c:/Users/dhadley/Documents/GitHub/Somerville_Daily_Dashboard/")
 
 # This pulls in the credentials you need
+# And the dashboard function made by DH
 source("./config.R")
+source("./My_Dashboard_Functions.R")
 
 
 library(RCurl)
