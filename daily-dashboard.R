@@ -57,64 +57,24 @@ qol <- read.csv("//fileshare1/Departments2/Somerstat Data/Police/daily/QualityOf
 # Clean
 ci$DateTime <- parse_date_time(ci$dtreported, orders = "%m-%d-%y %I:%M:%S %p")
 ci$Date <- format(ci$DateTime, '%Y-%m-%d')
-ci <- DateVariableMaker(ci, "Date")
+ci <- add_date_vars(ci, "Date")
 
 
 
 ## Time series
-TimeSeriesMaker_ci <- function(){
-  
-  ##  Turns the data into a complete time series ##
-  
-  days <- ci %>%
-    filter(DaysAgo > -120) %>%
-    group_by(Date, offense) %>% 
-    summarise(count = n()) %>% 
-    ungroup() %>% 
-    spread(offense, count)
-  
-  allDays <- seq.Date(from=days$Date[1], to = today, b='days')
-  allDays <- allDays  %>%  as.data.frame() 
-  colnames(allDays)[1] = "Date"
-  
-  # After this we will have a df with every date and how many work orders
-  ts = merge(days, allDays, by='Date', all=TRUE)
-  ts[is.na(ts)] <- 0
-  
-  ## Now weekly
-  # First we get the day number of yesterday for the weekending date
-  # Because otherwise it ends on Sunday
-  # http://stackoverflow.com/questions/8030812/how-can-i-group-days-into-weeks/8031372#8031372
-  WeekEndingNum <- as.numeric(ts$Date[nrow(ts)])
-  
-  # Ok now we can group by a week that ended yesterday and summarise
-  tsWeekly <- ts %>% 
-    mutate(Week = (WeekEndingNum - as.numeric(Date)) %/% 7) %>% 
-    group_by(Week) %>%
-    summarise_each(funs(sum, max)) %>% #max to get the last date
-    arrange(-Week)
-  
-  tsWeekly <- tsWeekly[-1,] # Drop first row because it's an incomplete week
-  
-  tsWeekly <- tsWeekly %>% 
-    select(Date_sum:Date_max) %>% 
-    select(-Date_sum)
-  
-  tsWeekly$Date_max <- format(tsWeekly$Date_max, format = "%b %d")
-  
-  names(tsWeekly) <- gsub("_sum", "", names(tsWeekly))
-  
-  return(tsWeekly)
-  
-}
+TimeSeries_ci <- make_x_day_ts_multiple_v(ci, "Date", 7, "offense")
 
-TimeSeries_ci <- TimeSeriesMaker_ci()
-TimeSeries_ci <- as.data.frame(TimeSeries_ci)
+# Get it down to about 17 weeks and format a couple things
+TimeSeries_ci <- TimeSeries_ci %>% 
+  tail(17) %>% 
+  mutate(period_ending = format(period_ending, format = "%b %d")) %>% 
+  data.frame() # the other format was throwing off printing
+
 
 
 ## CI map
 forMap_ci <- ci %>% 
-  filter(DaysAgo > -15 & X != "" & X != 0) %>% 
+  filter(days_ago > -15 & X != "" & X != 0) %>% 
   select(Y, X, offense, Date) %>% 
   rename(latitude = Y, longitude = X)
 
