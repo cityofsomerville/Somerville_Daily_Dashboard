@@ -30,20 +30,6 @@ library(leafletR) # to make geojson
 today <- Sys.Date()
 yesterday <- today - 1
 
-# custom function for dealing with dates
-DateVariableMaker <- function(MyData, MyDataDate){
-  
-  #Takes the date from data and adds important variables
-  
-  MyData$Date <- as.Date(MyData[,MyDataDate])
-  MyData$Year.Month <- format(MyData$Date, '%Y-%m')
-  MyData$Month <- format(MyData$Date, '%m')
-  MyData$Year <- format(MyData$Date, '%Y')
-  MyData$DaysAgo <- difftime(MyData$Date, today, units = "days")
-  
-  return(MyData)
-}
-
 
 
 
@@ -105,7 +91,7 @@ cs <- as.data.frame(apply(cs,2,function (cs) sub("\\s+$", "", cs)))
 cs$typeName <- as.character(cs$typeName)
 
 cs$Date <- as.Date(cs$displayDate, "%m/%d/%Y")
-cs <- DateVariableMaker(cs, "Date")
+cs <- add_date_vars(cs, "Date")
 
 
 
@@ -116,155 +102,46 @@ cs <- DateVariableMaker(cs, "Date")
 # Put it in a function so as to keep code clean
 
 ## First the algo to find which work orders had the largest (statistical) increase last week
-TSAnomalies <- function(){
-  
-  ##  Find calls that have increased in statistically significant ways (except small n) ##
-  
-  days <- cs %>%
-    filter(DaysAgo > -120) %>%
-    filter(secondary_issue_type == "Service Requests") %>% 
-    filter(typeName != "Miscellaneous" & typeName != "Welcome desk information" & 
-             typeName != "CS-Lost call (wrong #, hang up, dead air)") %>% 
-    group_by(Date, typeName) %>% 
-    summarise(count = n()) %>% 
-    ungroup() %>% 
-    spread(typeName, count)
-  
-  allDays <- seq.Date(from=days$Date[1], to = today, b='days')
-  allDays <- allDays  %>%  as.data.frame() 
-  colnames(allDays)[1] = "Date"
-  
-  # After this we will have a df with every date and how many work orders
-  ts = merge(days, allDays, by='Date', all=TRUE)
-  ts[is.na(ts)] <- 0
-  
-  ## Now weekly
-  # First we get the day number of yesterday for the weekending date
-  # Because otherwise it ends on Sunday
-  # http://stackoverflow.com/questions/8030812/how-can-i-group-days-into-weeks/8031372#8031372
-  WeekEndingNum <- as.numeric(ts$Date[nrow(ts)])
-  
-  # Ok now we can group by a week that ended yesterday and summarise
-  tsWeekly <- ts %>% 
-    mutate(Week = (WeekEndingNum - as.numeric(Date)) %/% 7) %>% 
-    group_by(Week) %>%
-    summarise_each(funs(sum, max)) %>% #max to get the last date
-    arrange(-Week)
-  
-  tsWeekly <- tsWeekly[-1,] # Drop first row because it's an incomplete week
-  
-  # Find and remove small n - work order types where there was only 3 or fewer the whole week
-  lastRow <- tail(tsWeekly, 1)
-  # Now subset based on the value of hte last row, which is the total for the last week
-  tsWeekly <- tsWeekly[,lastRow > 3]
-  
-  # all weeks expressed as a Z-Score
-  tsWeeklyZ <- tsWeekly %>% 
-    select(Date_sum:Date_max) %>% 
-    select(-Date_sum, -Date_max) %>% 
-    scale() %>% 
-    data.frame()
-  
-  ToGetNames <- tsWeekly %>% 
-    select(Date_sum:Date_max) %>% 
-    select(-Date_sum, -Date_max)
-  
-  Increaes <- tsWeeklyZ %>% 
-    tail(n = 1) %>% 
-    t() %>% 
-    as.data.frame()
-  
-  row.names(Increaes) <- names(ToGetNames)
-  
-  Increaes <- cbind(typeName = rownames(Increaes), Increaes)
-  names(Increaes) <- c("typeName", "ZScore")
-  Increaes$typeName <- gsub("_sum", "", Increaes$typeName)
-  
-  #Sort by Z-Score 
-  Increaes <- arrange(Increaes, -ZScore)
-  
-  #Top Three
-  unique_cs_top_three <- c(as.character(Increaes$typeName[1]),
-                           as.character(Increaes$typeName[2]),
-                           as.character(Increaes$typeName[3]))
-  
-  TopThreeIncreases_cs_all <- cs %>% 
-    filter(typeName %in% unique_cs_top_three)
-  
-  
-  return(TopThreeIncreases_cs_all)
-  
-}
+# First get work orders
+cs_work_requests <- cs %>% filter(secondary_issue_type == "Service Requests")
 
-TopThreeIncreases_cs_all <- TSAnomalies() # We use this to build the gauges too
+# Now run it through my function that sorts by growth
+cs_increases <- sort_by_ts_statistical_growth(cs_work_requests, "Date", x_days = 7, "typeName", n_threshold = 3)
+
+# a vector with the top 3
+unique_cs_top_three <- c(as.character(cs_increases$v_names[1]),
+                         as.character(cs_increases$v_names[2]),
+                         as.character(cs_increases$v_names[3]))
+
+
+# We use this to build the gauges and maps too
+TopThreeIncreases_cs_all <- cs_work_requests %>% 
+  filter(typeName %in% unique_cs_top_three) 
 
 TopThreeIncreases_cs <- TopThreeIncreases_cs_all %>% 
-  select(latitude, longitude, typeName, Date, DaysAgo, comments)
+  select(latitude, longitude, typeName, Date, days_ago, comments)
 
 
 # First the time series chart
-TimeSeriesMaker <- function(){
-  
-  ##  Turns the data into a complete time series ##
-  
-  days <- TopThreeIncreases_cs %>%
-    filter(DaysAgo > -120) %>%
-    group_by(Date, typeName) %>% 
-    summarise(count = n()) %>% 
-    ungroup() %>% 
-    spread(typeName, count)
-  
-  allDays <- seq.Date(from=days$Date[1], to = today, b='days')
-  allDays <- allDays  %>%  as.data.frame() 
-  colnames(allDays)[1] = "Date"
-  
-  # After this we will have a df with every date and how many work orders
-  ts = merge(days, allDays, by='Date', all=TRUE)
-  ts[is.na(ts)] <- 0
-  
-  ## Now weekly
-  # First we get the day number of yesterday for the weekending date
-  # Because otherwise it ends on Sunday
-  # http://stackoverflow.com/questions/8030812/how-can-i-group-days-into-weeks/8031372#8031372
-  WeekEndingNum <- as.numeric(ts$Date[nrow(ts)])
-  
-  # Ok now we can group by a week that ended yesterday and summarise
-  tsWeekly <- ts %>% 
-    mutate(Week = (WeekEndingNum - as.numeric(Date)) %/% 7) %>% 
-    group_by(Week) %>%
-    summarise_each(funs(sum, max)) %>% #max to get the last date
-    arrange(-Week)
-  
-  tsWeekly <- tsWeekly[-1,] # Drop first row because it's an incomplete week
-  
-  tsWeekly <- tsWeekly %>% 
-    select(Date_sum:Date_max) %>% 
-    select(-Date_sum)
-  
-  tsWeekly$Date_max <- format(tsWeekly$Date_max, format = "%b %d")
-  
-  names(tsWeekly) <- gsub("_sum", "", names(tsWeekly))
-  
-  return(tsWeekly)
-  
-}
+# Make the ts using my function
+forChart_TopThree_cs <- make_x_day_ts_multiple_v(TopThreeIncreases_cs_all, "Date", x_days = 7, "typeName")
 
-forChart_TopThree_cs <- TimeSeriesMaker()
-forChart_TopThree_cs <- as.data.frame(forChart_TopThree_cs) # was having problems kniting
+# clean up
+forChart_TopThree_cs <- forChart_TopThree_cs %>% 
+  tail(17) %>% 
+  mutate(Date_max = format(period_ending, format = "%b %d")) %>% 
+  data.frame(check.names = FALSE) # the other format was throwing off printing 
 
 
 # Then the Map
 forMap_cs <- TopThreeIncreases_cs %>% 
-  filter(DaysAgo > -8 & latitude != "" & latitude != 0) %>% 
+  filter(days_ago > -8 & latitude != "" & latitude != 0) %>% 
   mutate(# Charcs messing up geojson
     comments = gsub("\"","", comments),
     comments = gsub("\t", " ", comments),
     comments = gsub('"', '', comments)) %>% 
-  select(-DaysAgo)
+  select(-days_ago)
 
-
-# This is a variable in the daily.rhtml
-unique_cs_top <- as.character(forMap_cs$typeName[1])
 
 
 
@@ -300,10 +177,10 @@ HoursOpen$TimeOpen <- HoursOpen$TimeOpen + 1
 # Convert to days
 HoursOpen$DaysOpen <- ((HoursOpen$TimeOpen / 60) / 1440)
 HoursOpen$HoursOpen <- ((HoursOpen$TimeOpen / 60) / 60)
-  
+
 # Scientific notation is annoying when reviewing these
 options(scipen=999)
-  
+
 HoursOpen <- HoursOpen %>%
   group_by(typeName) %>% 
   summarise(HoursOpen = median(HoursOpen), n = n())
@@ -313,14 +190,14 @@ HoursOpen <- HoursOpen %>%
 
 #### Top from last day ####
 TopFifteen_cs <- cs %>% 
-  filter(DaysAgo > -2) %>%
+  filter(days_ago > -2) %>%
   # Take out internal ones
   filter(secondary_issue_type != "internally generated") %>% 
   group_by(typeName) %>% 
   dplyr::summarise(count=n()) %>% 
   arrange(-count) %>% 
   filter(typeName != "Miscellaneous" & typeName != "Welcome desk information" & typeName != "CS-Lost call (wrong #, hang up, dead air)")
-  
+
 
 # If more than 15, mow it down
 if(nrow(TopFifteen_cs) > 15 ){
@@ -342,104 +219,36 @@ TopFive_cs <- arrange(TopFive_cs, count)
 # to get the count of calls yesterday
 Yesterday_cs <- cs %>%
   filter(secondary_issue_type != "internally generated") %>% 
-  filter(DaysAgo > -2 & DaysAgo < 0)
+  filter(days_ago > -2 & days_ago < 0)
 
-# Get average for similar type days 
-yesterdayType <-  ifelse(wday(yesterday) == 1, "weekend",
-                         ifelse(wday(yesterday) == 7, "weekend", 
-                                "weekday"))
+# Take out internal and compare
+cs_not_internal <- cs %>% filter(secondary_issue_type != "internally generated")
 
-cs$DayType <- ifelse(wday(cs$Date) == 1, "weekend",
-                     ifelse(wday(cs$Date) == 7, "weekend", 
-                            "weekday"))
-
-CompareAverage <- function(){
-  
-  ## Compares week days to week days and weekends to weekends
-  # To see if yesterday was average for calls 
-  
-  cs_comporable <- cs %>% 
-    filter(DayType == yesterdayType) %>% 
-    filter(secondary_issue_type != "internally generated") %>%
-    group_by(Date) %>% 
-    summarise(n = n())
-  
-  averageCallNumber <- mean(cs_comporable$n)
-  stdev <- sd(cs_comporable$n)
-  
-  CallNumberYesterday <- nrow(Yesterday_cs)
-  delta <- CallNumberYesterday - averageCallNumber 
-  
-  comparison <- ifelse(delta > 0 & delta > stdev, "significantly above average",
-                       ifelse(delta > 0 & delta < stdev, "slightly above average",
-                              ifelse(delta < 0 & abs(delta) > stdev, "significantly below average",
-                                     ifelse(delta < 0 & abs(delta) < stdev, "slightly below average",
-                                            "average"))))
-  return(comparison)
-}
-
-comparisonCS <- CompareAverage()
+comparisonCS <- comp_last_day_avg(my_data = cs_not_internal, date_var = "Date")
 
 
 
 
 #### Quality of Life ####
+cs_qol <- cs %>% 
+  filter(secondary_issue_type != "internally generated") %>% 
+  filter(typeName == "Rats" | typeName == "Graffiti" | typeName == "Pothole") 
 
-# time series last 120 days
-TimeSeriesMaker_qol <- function(){
-  
-  days <- cs %>% 
-    filter(DaysAgo > -120) %>%
-    filter(secondary_issue_type != "internally generated") %>% 
-    filter(typeName == "Rats" | typeName == "Graffiti" | typeName == "Pothole") %>%
-    group_by(Date, typeName) %>% 
-    summarise(count = n()) %>% 
-    ungroup() %>% 
-    spread(typeName, count)
-  
-  allDays <- seq.Date(from=days$Date[1], to = days$Date[nrow(days)], b='days')
-  allDays <- allDays  %>%  as.data.frame() 
-  colnames(allDays)[1] = "Date"
-  
-  # After this we will have a df with every date and how many work orders
-  ts = merge(days, allDays, by='Date', all=TRUE)
-  ts[is.na(ts)] <- 0
-  
-  ## Now weekly
-  # First we get the day number of yesterday for the weekending date
-  # Because otherwise it ends on Sunday
-  # http://stackoverflow.com/questions/8030812/how-can-i-group-days-into-weeks/8031372#8031372
-  WeekEndingNum <- as.numeric(ts$Date[nrow(ts)])
-  
-  # Ok now we can group by a week that ended yesterday and summarise
-  tsWeekly <- ts %>% 
-    mutate(Week = (WeekEndingNum - as.numeric(Date)) %/% 7) %>% 
-    group_by(Week) %>%
-    summarise_each(funs(sum, max)) %>% #max to get the last date
-    arrange(-Week)
-  
-  tsWeekly <- tsWeekly[-1,] # Drop first row because it's an incomplete week
-  
-  tsWeekly <- tsWeekly %>% 
-    select(Date_sum:Date_max) %>% 
-    select(-Date_sum)
-  
-  tsWeekly$Date_max <- format(tsWeekly$Date_max, format = "%b %d")
-  
-  names(tsWeekly) <- gsub("_sum", "", names(tsWeekly))
-  
-  return(tsWeekly)
-  
-}
 
-forTS_qol <- TimeSeriesMaker_qol()
+# Make the chart with my function
+forTS_qol <- make_x_day_ts_multiple_v(cs_qol, "Date", 7, "typeName")
+
+# clean up
+forTS_qol <- forTS_qol %>% 
+  tail(17) %>% 
+  mutate(Date_max = format(period_ending, format = "%b %d")) %>% 
+  data.frame(check.names = FALSE) # the other format was throwing off printing 
+
 
 
 ## Make geojson for the top quality-of-life calls ##
-forMap_qol <- cs %>% 
-  filter(DaysAgo > -8) %>% 
-  filter(secondary_issue_type != "internally generated") %>% 
-  filter(typeName == "Rats" | typeName == "Graffiti" | typeName == "Pothole") %>%
+forMap_qol <- cs_qol %>% 
+  filter(days_ago > -8) %>%
   select(latitude, longitude, typeName)
 
 
@@ -468,7 +277,7 @@ ftpUpload(what = "./tmp/QualityOfLifeCS.geojson",
 
 #### Top internally-generated from yesterday ####
 Top_five_internal_cs <- cs %>% 
-  filter(DaysAgo > -8) %>%
+  filter(days_ago > -8) %>%
   # Take out internal ones
   filter(secondary_issue_type == "internally generated") %>% 
   group_by(typeName) %>% 
@@ -514,12 +323,12 @@ isd <- read.csv("//fileshare1/Departments2/Somerstat Data/Inspectional_Services/
 
 # More dates
 isd$Date <- as.Date(isd$IssueDate, "%m/%d/%Y")
-isd <- DateVariableMaker(isd, "Date")
+isd <- add_date_vars(isd, "Date")
 
 
 ## Top from last day ## 
 Top_isd <- isd %>%
-  filter(DaysAgo > -2) %>%
+  filter(days_ago > -2) %>%
   group_by(PermitType) %>%
   dplyr::summarize(count=n()) %>%
   arrange(-count)
@@ -534,7 +343,7 @@ Top_isd <- arrange(Top_isd, count)
 
 ## Map it
 forMap_isd <- isd %>%
-  filter(DaysAgo > -8, Latitude != 0) %>%
+  filter(days_ago > -8, Latitude != 0) %>%
   select(Latitude, Longitude, ProjectName, PermitAmount, Address, PermitTypeDetail, PermitType) %>% 
   mutate(PermitAmount = as.numeric(PermitAmount),
          Latitude = round(Latitude, 5),
