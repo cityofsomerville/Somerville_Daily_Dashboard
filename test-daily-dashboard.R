@@ -79,7 +79,7 @@ ftpUpload(what = "./tmp/PoliceCI.geojson",
 ############## 311 ############### 
 
 ## Read Data and make new Variables ##
-cs <- read.csv("//fileshare1/Departments2/Somerstat Data/Constituent_Services/data/311_Somerville.csv")
+cs <- read.csv("//fileshare1/Departments2/Somerstat Data/Constituent_Services/data/data_pipeline_dont_use/311_Somerville.csv")
 
 
 # returns string w/o leading or trailing whitespace

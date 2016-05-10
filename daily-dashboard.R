@@ -36,8 +36,8 @@ yesterday <- today - 1
 ############## Police ############### 
 
 ## Read Data and make new Variables ##
-ci <- read.csv("//fileshare1/Departments2/Somerstat Data/Police/daily/CriminalIncidents.csv")
-qol <- read.csv("//fileshare1/Departments2/Somerstat Data/Police/daily/QualityOfLife.csv")
+ci <- read.csv("//fileshare1/Departments2/Somerstat Data/Police/daily/data_pipeline_dont_use/CriminalIncidents.csv")
+qol <- read.csv("//fileshare1/Departments2/Somerstat Data/Police/daily/data_pipeline_dont_use/QualityOfLife.csv")
 
 
 # Clean
@@ -79,7 +79,7 @@ ftpUpload(what = "./tmp/PoliceCI.geojson",
 ############## 311 ############### 
 
 ## Read Data and make new Variables ##
-cs <- read.csv("//fileshare1/Departments2/Somerstat Data/Constituent_Services/data/311_Somerville.csv")
+cs <- read.csv("//fileshare1/Departments2/Somerstat Data/Constituent_Services/data/data_pipeline_dont_use/311_Somerville.csv")
 
 
 # returns string w/o leading or trailing whitespace
@@ -300,7 +300,7 @@ Top_five_internal_cs <- arrange(Top_five_internal_cs, count)
 
 ############## Web Analytics ##############
 
-ga.df <- read.csv("//fileshare1/Departments/Somerstat/Common/Data/2015_City_Web_Analytics/raw_data/LastTwentyFour.csv")
+ga.df <- read.csv("//fileshare1/Departments2/Somerstat Data/Website_Analytics/data_pipeline_dont_use/LastTwentyFour.csv")
 
 TopFifteen_ga <- ga.df %>%
   filter(pageTitle != "City of Somerville, Massachusetts" & 
@@ -319,7 +319,7 @@ TopFifteen_ga <- arrange(TopFifteen_ga, pageviews)
 
 ############## Citizenserve ##############
 
-isd <- read.csv("//fileshare1/Departments2/Somerstat Data/Inspectional_Services/data/Daily_Permits.csv")
+isd <- read.csv("//fileshare1/Departments2/Somerstat Data/Inspectional_Services/data/data_pipeline_dont_use/Daily_Permits.csv")
 
 # More dates
 isd$Date <- as.Date(isd$IssueDate, "%m/%d/%Y")
