@@ -164,11 +164,11 @@ comp_last_day_avg <- function(my_data, date_var){
   
   # Now find the type
   daily_ts <- daily_ts %>% 
-    mutate(day_type = ifelse(wday(date) == 1, "weekend",
-                             ifelse(wday(date) == 7, "weekend",
+    mutate(day_type = ifelse(wday(period_ending) == 1, "weekend",
+                             ifelse(wday(period_ending) == 7, "weekend",
                                     "weekday")))
   
-  last_day_type <- daily_ts$day_type[which.max(daily_ts$date)]
+  last_day_type <- daily_ts$day_type[which.max(daily_ts$period_ending)]
   
   # Filter for that type
   daily_ts <- filter(daily_ts, day_type == last_day_type)
@@ -177,7 +177,7 @@ comp_last_day_avg <- function(my_data, date_var){
   avg_n <- mean(daily_ts$n)
   stdev <- sd(daily_ts$n)
   
-  last_day_n <- daily_ts$n[which.max(daily_ts$date)]
+  last_day_n <- daily_ts$n[which.max(daily_ts$period_ending)]
   delta <- last_day_n - avg_n
   
   comparison <- ifelse(delta > 0 & delta > stdev, "significantly above average",
@@ -270,7 +270,7 @@ sort_by_ts_statistical_growth <- function(my_data, date_var, x_days, var_of_inte
     filter(final > n_threshold) %>% 
     arrange(-final_z_score)
   
-
+  
   return(all_together)
   
 }
