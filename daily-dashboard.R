@@ -369,7 +369,20 @@ ftpUpload(what = "./tmp/BuildingPermits.geojson",
 ############## Knit ##############
 
 ## Now knit together the data and HTML in highcharts and save it to the server ##
+# I first do a test for my testing environment, then full save
 library(knitr)
+
+knit("./test-daily.Rhtml", output = "./tmp/test-daily.html")
+
+# Upload to the daily dashboard
+ftpUpload(what = "./tmp/test-daily.html",
+          to = paste(Somerville_server, "test-daily.html", sep = ""),
+          verbose = TRUE,
+          userpwd = Somerville_server_userpwd, 
+          prequote="CWD /var/www/dashboard/")
+
+
+
 
 knit("./daily.Rhtml", output = "./tmp/daily.html")
 
