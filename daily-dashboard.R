@@ -134,13 +134,12 @@ forChart_TopThree_cs <- forChart_TopThree_cs %>%
 
 
 # Then the Map
-forMap_cs <- TopThreeIncreases_cs %>% 
-  filter(days_ago > -8 & latitude != "" & latitude != 0) %>% 
-  mutate(# Charcs messing up geojson
-    comments = gsub("\"","", comments),
-    comments = gsub("\t", " ", comments),
-    comments = gsub('"', '', comments)) %>% 
-  select(-days_ago)
+forMap_cs <- TopThreeIncreases_cs %>%
+  mutate(latitude = as.numeric(as.character(latitude))) %>% 
+  filter(days_ago > -8 & latitude != "") %>%
+  filter(latitude != 0) %>% 
+  # Too many sensitive details in the comments
+  select(-days_ago, -comments)
 
 
 
@@ -372,7 +371,7 @@ ftpUpload(what = "./tmp/BuildingPermits.geojson",
 # I first do a test for my testing environment, then full save
 library(knitr)
 
-knit("./test-daily.Rhtml", output = "./tmp/test-daily.html")
+knit("./daily.Rhtml", output = "./tmp/test-daily.html")
 
 # Upload to the daily dashboard
 ftpUpload(what = "./tmp/test-daily.html",

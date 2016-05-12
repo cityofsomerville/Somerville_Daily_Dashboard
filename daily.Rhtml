@@ -550,8 +550,7 @@ They load to the specified containers -->
               function onEachFeatureU(feature, layer) {
                 popupOptions = {maxWidth: 200};
                 layer.bindPopup("<b>Date:</b> " + feature.properties.Date +
-                  "<br><b>Type: </b>" + feature.properties.typeName +
-                  "<br><b>Comments: </b>" + feature.properties.comments,
+                  "<br><b>Type: </b>" + feature.properties.typeName,
                   popupOptions);
                   }
 
