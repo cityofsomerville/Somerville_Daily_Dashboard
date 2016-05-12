@@ -275,10 +275,12 @@ ftpUpload(what = "./tmp/QualityOfLifeCS.geojson",
 
 
 #### Top internally-generated from yesterday ####
-Top_five_internal_cs <- cs %>% 
+cs_internal <- cs %>% 
+  filter(secondary_issue_type == "internally generated")
+
+
+Top_five_internal_cs <- cs_internal %>% 
   filter(days_ago > -8) %>%
-  # Take out internal ones
-  filter(secondary_issue_type == "internally generated") %>% 
   group_by(typeName) %>% 
   dplyr::summarise(count=n()) %>% 
   arrange(-count) %>% 
@@ -293,6 +295,16 @@ if(nrow(Top_five_internal_cs) > 5 ){
 
 # Arrange them for the charts
 Top_five_internal_cs <- arrange(Top_five_internal_cs, count)
+
+
+## Get the ones with the largest statistical increase
+
+# Quick function to format for the tables
+percent <- function(x, digits = 2, format = "f", ...) {
+  paste0(formatC(100 * x, format = format, digits = digits, ...), "%")
+}
+
+top_three_increases_internal_cs <- sort_by_ts_statistical_growth(cs_internal, "Date", x_days = 7, n_threshold = 2, var_of_interest = "typeName")
 
 
 

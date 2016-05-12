@@ -524,7 +524,7 @@ They load to the specified containers -->
       <br></br>
 
         <h3 class="section header">Significant Calls</h3>
-        <p>The chart above usually contains many of the same call types, which is why we track calls that increase more than average. During the last seven days, there was an increase in calls for <FONT COLOR="#2f7ed8"><!--rinline I(names(forChart_TopThree_cs[1])) --></FONT>, <FONT COLOR="#0d233a"><!--rinline I(names(forChart_TopThree_cs[2])) --></FONT>, and <FONT COLOR="#8bbc21"><!--rinline I(names(forChart_TopThree_cs[3])) --></FONT>. This chart shows calls of those types for the last 120 days, while the map shows their location for the last week. Often, spatial clusters indicate that DPW is calling in the work orders and closing them pro-actively.</p>
+        <p>The chart above usually contains many of the same call types, which is why we track calls that increase more than average. During the last seven days, there was an increase in calls for <FONT COLOR="#2f7ed8"><!--rinline I(names(forChart_TopThree_cs[1])) --></FONT>, <FONT COLOR="#0d233a"><!--rinline I(names(forChart_TopThree_cs[2])) --></FONT>, and <FONT COLOR="#8bbc21"><!--rinline I(names(forChart_TopThree_cs[3])) --></FONT>. This chart shows calls of those types for the last 120 days, while the map shows their location for the last week.</p>
         <div class="row">
         <div class="span6">
           <div id="TopThreeTSChartContainer" style="width:100%; height:400px;"></div>
@@ -670,7 +670,37 @@ They load to the specified containers -->
           <h3 class="section header">Internally Generated Work</h3>
           <div class="row">
             <div class="span6">
-              <p>At the same time that they respond to 311 calls, city workers are also proactive about finding work that needs to be done, reporting it, and completing it. This chart shows the top 5 work orders that were internally generated from the last seven days.</p>
+              <p>At the same time that they respond to 311 calls, city workers are also proactive about finding work that needs to be done, reporting it, and completing it. This chart shows the top 5 work orders that were internally generated from the last seven days. In addition, here are the three internal work orders that increased the most over average:</p>
+              <table class="table table-hover">
+                      <thead>
+                          <tr>
+                              <th>Work Order Type</th>
+                              <th># Generated Last Wk</th>
+                              <th>Avg/Wk</th>
+                              <th>% Increase</th>
+                          </tr>
+                      </thead>
+                      <tbody>
+                          <tr>
+                              <td><!--rinline I(top_three_increases_internal_cs[1,1]) --></td>
+                              <td><!--rinline I(top_three_increases_internal_cs[1,2]) --></td>
+                              <td><!--rinline I(round(top_three_increases_internal_cs[1,3], digits = 2)) --></td>
+                              <td><!--rinline I(percent(top_three_increases_internal_cs[1,5])) --></td>
+                          </tr>
+                          <tr>
+                              <td><!--rinline I(top_three_increases_internal_cs[2,1]) --></td>
+                              <td><!--rinline I(top_three_increases_internal_cs[2,2]) --></td>
+                              <td><!--rinline I(round(top_three_increases_internal_cs[2,3], digits = 2)) --></td>
+                              <td><!--rinline I(percent(top_three_increases_internal_cs[2,5])) --></td>
+                          </tr>
+                          <tr>
+                              <td><!--rinline I(top_three_increases_internal_cs[3,1]) --></td>
+                              <td><!--rinline I(top_three_increases_internal_cs[3,2]) --></td>
+                              <td><!--rinline I(round(top_three_increases_internal_cs[3,3], digits = 2)) --></td>
+                              <td><!--rinline I(percent(top_three_increases_internal_cs[3,5])) --></td>
+                          </tr>
+                      </tbody>
+                  </table>
             </div>
             <div class="span6">
               <div id="AllInternalConstituentServicesContainer" style="width:100%; height:400px;"></div>
