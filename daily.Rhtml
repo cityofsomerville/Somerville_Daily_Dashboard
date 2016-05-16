@@ -352,6 +352,45 @@ They load to the specified containers -->
         }]
     });
 
+<!-- Police Quality of Life Time Series -->
+  var chart1 = new Highcharts.Chart({
+        chart: {
+            renderTo: 'QOL_TS_ChartContainer',
+      type: 'line'
+        },
+  title: {
+                text: 'Quality of Life Calls By Week'
+        },
+       subtitle: {
+                text: 'Source: Somerville Police'
+        },
+      
+        xAxis: {
+                categories: [<!--rinline I(shQuote(forChart_TopThree_qol$Date_max)) -->]
+        },
+  yAxis: {
+                title: {
+                    text: 'Significant Calls Per Week'
+                },
+                plotLines: [{
+                    value: 0,
+                    width: 1,
+                    color: '#808080'
+                }]
+        },
+
+        series: [{
+      name: <!--rinline I(shQuote(names(forChart_TopThree_qol[1]))) -->,
+            data: [<!--rinline I(forChart_TopThree_qol[,1]) -->]
+        }, {
+      name: <!--rinline I(shQuote(names(forChart_TopThree_qol[2]))) -->,
+            data: [<!--rinline I(forChart_TopThree_qol[,2]) -->]
+        }, {
+      name: <!--rinline I(shQuote(names(forChart_TopThree_qol[3]))) -->,
+            data: [<!--rinline I(forChart_TopThree_qol[,3]) -->]
+        }]
+    });
+
 <!-- Constituent Services Internally Generated -->
     var chart1 = new Highcharts.Chart({
         chart: {
@@ -780,6 +819,72 @@ They load to the specified containers -->
             </script>
         </div>
         </div>
+
+        <br></br>
+
+        <h3 class="section header">Significant Quality of Life Calls</h3>
+        <p>The Police Department also receives calls about quality of life issues. During the last seven days, there was an increase (or less of a decrease) in calls for <FONT COLOR="#2f7ed8"><!--rinline I(names(forChart_TopThree_qol[1])) --></FONT>, <FONT COLOR="#0d233a"><!--rinline I(names(forChart_TopThree_qol[2])) --></FONT>, and <FONT COLOR="#8bbc21"><!--rinline I(names(forChart_TopThree_qol[3])) --></FONT>. This chart shows calls of those types for the last 120 days, while the map shows their location for the last two weeks.</p>
+        <div class="row">
+          <div class="span6">
+            <div id="QOL_TS_ChartContainer" style="width:100%; height:400px;"></div>
+          </div>
+          <div class="span6">
+            <div id="policeqol-map" style="height: 400px"></div>
+            <script>
+
+              // initialize the map
+              var qolmap = L.map('policeqol-map', {scrollWheelZoom:false}).setView([42.3947, -71.10548], 13);
+
+              // load a tile layer
+              L.tileLayer('http://tiles.mapc.org/basemap/{z}/{x}/{y}.png',
+                {
+                  attribution: 'Tiles by <a href="http://mapc.org">MAPC</a>, Data by <a href="http://mass.gov/mgis">MassGIS</a>',
+                  maxZoom: 17,
+                  minZoom: 9
+                }).addTo(qolmap);
+
+              // load GeoJSON from an external file: gis.stackexchange.com/questions/68489/how-to-load-external-geojson-file-into-leaflet-map
+
+              // Function to make popup
+              function onEachFeatureQOL(feature, layer) {
+                popupOptions = {maxWidth: 200};
+                layer.bindPopup("<b>Date:</b> " + feature.properties.Date +
+                  "<br><b>Type: </b>" + feature.properties.inctype,
+                  popupOptions);
+                  }
+
+              function fillingQOL(x) {
+                return x == <!--rinline I(shQuote(names(forChart_TopThree_qol[1]))) --> ? "#2f7ed8" :
+                       x == <!--rinline I(shQuote(names(forChart_TopThree_qol[2]))) --> ? "#910000" :
+                       x == <!--rinline I(shQuote(names(forChart_TopThree_qol[3]))) --> ? "#8bbc21" :
+                       "#808080";
+              }         
+
+              function pointToLayerQOL(feature, latlng) {
+                  return new L.CircleMarker(latlng, {
+                      radius: 10,
+                      fillColor: fillingQOL(feature.properties["inctype"]),
+                      color: "#000",
+                      weight: 1,
+                      opacity: .75,
+                      fillOpacity: 0.4
+                    })
+                }
+
+              $.ajax({
+              dataType: "json",
+              url: "./geo/daily/PoliceQOL.geojson",
+              success: function (response) {
+                    geojsonLayer = L.geoJson(response, {
+                      pointToLayer: pointToLayerQOL,
+                      onEachFeature : onEachFeatureQOL
+                    }).addTo(qolmap);
+                }
+              }).error(function() {});
+            </script>
+          </div>
+        </div>
+
     </div>
     </div>
 </div>

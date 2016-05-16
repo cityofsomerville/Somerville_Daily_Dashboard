@@ -45,8 +45,15 @@ ci$DateTime <- parse_date_time(ci$dtreported, orders = "%m-%d-%y %I:%M:%S %p")
 ci$Date <- format(ci$DateTime, '%Y-%m-%d')
 ci <- add_date_vars(ci, "Date")
 
+qol$DateTime <- parse_date_time(qol$dtreceived, orders = "%m-%d-%y %I:%M:%S %p")
+qol$Date <- format(qol$DateTime, '%Y-%m-%d')
+qol <- add_date_vars(qol, "Date")
+
+qol$inctype <- tolower(qol$inctype)
 
 
+
+### CI ###
 ## Time series
 TimeSeries_ci <- make_x_day_ts_multiple_v(ci, "Date", 7, "offense")
 
@@ -72,6 +79,56 @@ ftpUpload(what = "./tmp/PoliceCI.geojson",
           verbose = TRUE,
           userpwd = Somerville_server_userpwd, 
           prequote="CWD /var/www/dashboard/geo/daily/")
+
+
+
+
+### Significant QOL ###
+# Now run it through my function that sorts by growth
+qol_increases <- sort_by_ts_statistical_growth(qol, "Date", x_days = 7, "inctype", n_threshold = 1)
+
+# a vector with the top 3
+unique_qol_top_three <- c(as.character(qol_increases$v_names[1]),
+                         as.character(qol_increases$v_names[2]),
+                         as.character(qol_increases$v_names[3]))
+
+# We use this to build the gauges and maps too
+TopThreeIncreases_qol_all <- qol %>% 
+  filter(inctype %in% unique_qol_top_three) 
+
+TopThreeIncreases_qol <- TopThreeIncreases_qol_all %>%
+  select(Y, X, inctype, Date, days_ago) %>% 
+  rename(latitude = Y, longitude = X)
+
+
+# First the time series chart
+# Make the ts using my function
+forChart_TopThree_qol <- make_x_day_ts_multiple_v(TopThreeIncreases_qol_all, "Date", x_days = 7, "inctype")
+
+# clean up
+forChart_TopThree_qol <- forChart_TopThree_qol %>% 
+  tail(17) %>% 
+  mutate(Date_max = format(period_ending, format = "%b %d")) %>% 
+  data.frame(check.names = FALSE) # the other format was throwing off printing 
+
+
+# Then the Map
+forMap_qol <- TopThreeIncreases_qol %>%
+  mutate(latitude = as.numeric(as.character(latitude))) %>% 
+  filter(days_ago > -15 & latitude != "") %>%
+  filter(latitude != 0) %>% 
+  select(-days_ago)
+
+
+# Convert and upload to our server
+toGeoJSON(forMap_qol, "PoliceQOL", "./tmp/")
+
+ftpUpload(what = "./tmp/PoliceQOL.geojson",
+          to = paste(Somerville_server, "PoliceQOL.geojson", sep = ""),
+          verbose = TRUE,
+          userpwd = Somerville_server_userpwd, 
+          prequote="CWD /var/www/dashboard/geo/daily/")
+
 
 
 
