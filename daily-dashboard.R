@@ -221,7 +221,9 @@ Yesterday_cs <- cs %>%
   filter(days_ago > -2 & days_ago < 0)
 
 # Take out internal and compare
-cs_not_internal <- cs %>% filter(secondary_issue_type != "internally generated")
+cs_not_internal <- cs %>% 
+  filter(secondary_issue_type != "internally generated") %>% 
+  filter(days_ago < 0)
 
 comparisonCS <- comp_last_day_avg(my_data = cs_not_internal, date_var = "Date")
 
