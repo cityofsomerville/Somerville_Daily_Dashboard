@@ -1,7 +1,7 @@
 ############## Intro ############### 
 
-## Created 9/15 and updated 5/16 by Daniel Hadley to load and visualize data from various sources ##
-# and make charts for somervillema.gov/dashboard/daily.html 
+## Created 6/16 by Daniel Hadley to load and visualize data from various sources ##
+# and make charts for somervillema.gov/dashboard/monthly.html 
 
 # Basically, this crunches the data and 'knits' it into an HTML file using knitr. The HTML relies on highcharts for the charts and leaflet for the maps. Also, it uploads the HTML and geojson files to our production server. 
 
@@ -59,33 +59,33 @@ TimeSeries_ci <- make_x_day_ts_multiple_v(ci, "Date", 30.5, "offense")
 
 # Get it down to about 12 months and format a couple things
 TimeSeries_ci <- TimeSeries_ci %>% 
-  tail(12) %>% 
+  tail(13) %>% 
   mutate(period_ending = format(period_ending, format = "%b %d")) %>% 
   data.frame() # the other format was throwing off printing
 
 
 
 ## CI map
-forMap_ci <- ci %>% 
-  filter(days_ago > -30 & X != "" & X != 0) %>% 
+forMap_ci_monthly <- ci %>% 
+  filter(days_ago > -31 & X != "" & X != 0) %>% 
   select(Y, X, offense, Date) %>% 
   rename(latitude = Y, longitude = X)
 
 # Convert and upload to our server
-toGeoJSON(forMap_ci, "PoliceCI", "./tmp/")
+toGeoJSON(forMap_ci_monthly, "PoliceCI_monthly", "./tmp/")
 
-ftpUpload(what = "./tmp/PoliceCI.geojson",
-          to = paste(Somerville_server, "PoliceCI.geojson", sep = ""),
+ftpUpload(what = "./tmp/PoliceCI_monthly.geojson",
+          to = paste(Somerville_server, "PoliceCI_monthly.geojson", sep = ""),
           verbose = TRUE,
           userpwd = Somerville_server_userpwd, 
-          prequote="CWD /var/www/dashboard/geo/daily/")
+          prequote="CWD /var/www/dashboard/geo/monthly/")
 
 
 
 
 ### Significant QOL ###
 # Now run it through my function that sorts by growth
-qol_increases <- sort_by_ts_statistical_growth(qol, "Date", x_days = 7, "inctype", n_threshold = 1)
+qol_increases <- sort_by_ts_statistical_growth(qol, "Date", x_days = 30.5, "inctype", n_threshold = 4)
 
 # a vector with the top 3
 unique_qol_top_three <- c(as.character(qol_increases$v_names[1]),
@@ -103,11 +103,11 @@ TopThreeIncreases_qol <- TopThreeIncreases_qol_all %>%
 
 # First the time series chart
 # Make the ts using my function
-forChart_TopThree_qol <- make_x_day_ts_multiple_v(TopThreeIncreases_qol_all, "Date", x_days = 7, "inctype")
+forChart_TopThree_qol <- make_x_day_ts_multiple_v(TopThreeIncreases_qol_all, "Date", x_days = 30.5, "inctype")
 
 # clean up
 forChart_TopThree_qol <- forChart_TopThree_qol %>% 
-  tail(17) %>% 
+  tail(13) %>% 
   mutate(Date_max = format(period_ending, format = "%b %d")) %>% 
   data.frame(check.names = FALSE) # the other format was throwing off printing 
 
@@ -115,19 +115,19 @@ forChart_TopThree_qol <- forChart_TopThree_qol %>%
 # Then the Map
 forMap_qol <- TopThreeIncreases_qol %>%
   mutate(latitude = as.numeric(as.character(latitude))) %>% 
-  filter(days_ago > -15 & latitude != "") %>%
+  filter(days_ago > -31 & latitude != "") %>%
   filter(latitude != 0) %>% 
   select(-days_ago)
 
 
 # Convert and upload to our server
-toGeoJSON(forMap_qol, "PoliceQOL", "./tmp/")
+toGeoJSON(forMap_qol, "PoliceQOL_monthly", "./tmp/")
 
-ftpUpload(what = "./tmp/PoliceQOL.geojson",
-          to = paste(Somerville_server, "PoliceQOL.geojson", sep = ""),
+ftpUpload(what = "./tmp/PoliceQOL_monthly.geojson",
+          to = paste(Somerville_server, "PoliceQOL_monthly.geojson", sep = ""),
           verbose = TRUE,
           userpwd = Somerville_server_userpwd, 
-          prequote="CWD /var/www/dashboard/geo/daily/")
+          prequote="CWD /var/www/dashboard/geo/monthly/")
 
 
 
@@ -163,7 +163,7 @@ cs <- add_date_vars(cs, "Date")
 cs_work_requests <- cs %>% filter(secondary_issue_type == "Service Requests")
 
 # Now run it through my function that sorts by growth
-cs_increases <- sort_by_ts_statistical_growth(cs_work_requests, "Date", x_days = 7, "typeName", n_threshold = 3)
+cs_increases <- sort_by_ts_statistical_growth(cs_work_requests, "Date", x_days = 30.5, "typeName", n_threshold = 10)
 
 # a vector with the top 3
 unique_cs_top_three <- c(as.character(cs_increases$v_names[1]),
@@ -181,11 +181,11 @@ TopThreeIncreases_cs <- TopThreeIncreases_cs_all %>%
 
 # First the time series chart
 # Make the ts using my function
-forChart_TopThree_cs <- make_x_day_ts_multiple_v(TopThreeIncreases_cs_all, "Date", x_days = 7, "typeName")
+forChart_TopThree_cs <- make_x_day_ts_multiple_v(TopThreeIncreases_cs_all, "Date", x_days = 30.5, "typeName")
 
 # clean up
 forChart_TopThree_cs <- forChart_TopThree_cs %>% 
-  tail(17) %>% 
+  tail(13) %>% 
   mutate(Date_max = format(period_ending, format = "%b %d")) %>% 
   data.frame(check.names = FALSE) # the other format was throwing off printing 
 
@@ -244,9 +244,9 @@ HoursOpen <- HoursOpen %>%
 
 
 
-#### Top from last day ####
+#### Top from last month ####
 TopFifteen_cs <- cs %>% 
-  filter(days_ago > -2) %>%
+  filter(days_ago > -30) %>%
   # Take out internal ones
   filter(secondary_issue_type != "internally generated") %>% 
   group_by(typeName) %>% 
@@ -270,19 +270,13 @@ TopFive_cs <- arrange(TopFive_cs, count)
 
 
 
-#### Yesterday compared to average ####
+#### Last month ####
 
-# to get the count of calls yesterday
-Yesterday_cs <- cs %>%
+# to get the count of calls
+last_month_cs <- cs %>%
   filter(secondary_issue_type != "internally generated") %>% 
-  filter(days_ago > -2 & days_ago < 0)
+  filter(days_ago > -31 & days_ago < 0)
 
-# Take out internal and compare
-cs_not_internal <- cs %>% 
-  filter(secondary_issue_type != "internally generated") %>% 
-  filter(days_ago < 0)
-
-comparisonCS <- comp_last_day_avg(my_data = cs_not_internal, date_var = "Date")
 
 
 
@@ -294,11 +288,11 @@ cs_qol <- cs %>%
 
 
 # Make the chart with my function
-forTS_qol <- make_x_day_ts_multiple_v(cs_qol, "Date", 7, "typeName")
+forTS_qol <- make_x_day_ts_multiple_v(cs_qol, "Date", 30, "typeName")
 
 # clean up
 forTS_qol <- forTS_qol %>% 
-  tail(17) %>% 
+  tail(13) %>% 
   mutate(Date_max = format(period_ending, format = "%b %d")) %>% 
   data.frame(check.names = FALSE) # the other format was throwing off printing 
 
@@ -306,7 +300,7 @@ forTS_qol <- forTS_qol %>%
 
 ## Make geojson for the top quality-of-life calls ##
 forMap_qol <- cs_qol %>% 
-  filter(days_ago > -8) %>%
+  filter(days_ago > -31) %>%
   select(latitude, longitude, typeName)
 
 
@@ -314,21 +308,21 @@ forMap_qol <- cs_qol %>%
 
 #### Convert to geojson and put it on our server ####
 
-toGeoJSON(forMap_cs, "UniqueCS", "./tmp/")
+toGeoJSON(forMap_cs, "UniqueCS_monthly", "./tmp/")
 
-toGeoJSON(forMap_qol, "QualityOfLifeCS", "./tmp/")
+toGeoJSON(forMap_qol, "QualityOfLifeCS_monthly", "./tmp/")
 
-ftpUpload(what = "./tmp/UniqueCS.geojson",
-          to = paste(Somerville_server, "UniqueCS.geojson", sep = ""),
+ftpUpload(what = "./tmp/UniqueCS_monthly.geojson",
+          to = paste(Somerville_server, "UniqueCS_monthly.geojson", sep = ""),
           verbose = TRUE,
           userpwd = Somerville_server_userpwd, 
-          prequote="CWD /var/www/dashboard/geo/daily/")
+          prequote="CWD /var/www/dashboard/geo/monthly/")
 
-ftpUpload(what = "./tmp/QualityOfLifeCS.geojson",
-          to = paste(Somerville_server, "QualityOfLifeCS.geojson", sep = ""),
+ftpUpload(what = "./tmp/QualityOfLifeCS_monthly.geojson",
+          to = paste(Somerville_server, "QualityOfLifeCS_monthly.geojson", sep = ""),
           verbose = TRUE,
           userpwd = Somerville_server_userpwd, 
-          prequote="CWD /var/www/dashboard/geo/daily/")
+          prequote="CWD /var/www/dashboard/geo/monthly/")
 
 
 
@@ -339,7 +333,7 @@ cs_internal <- cs %>%
 
 
 Top_five_internal_cs <- cs_internal %>% 
-  filter(days_ago > -8) %>%
+  filter(days_ago > -31) %>%
   group_by(typeName) %>% 
   dplyr::summarise(count=n()) %>% 
   arrange(-count) %>% 
@@ -363,7 +357,7 @@ percent <- function(x, digits = 2, format = "f", ...) {
   paste0(formatC(100 * x, format = format, digits = digits, ...), "%")
 }
 
-top_three_increases_internal_cs <- sort_by_ts_statistical_growth(cs_internal, "Date", x_days = 7, n_threshold = 2, var_of_interest = "typeName")
+top_three_increases_internal_cs <- sort_by_ts_statistical_growth(cs_internal, "Date", x_days = 30.5, n_threshold = 2, var_of_interest = "typeName")
 
 
 
@@ -396,9 +390,9 @@ isd$Date <- as.Date(isd$IssueDate, "%m/%d/%Y")
 isd <- add_date_vars(isd, "Date")
 
 
-## Top from last day ## 
+## Top from last month ## 
 Top_isd <- isd %>%
-  filter(days_ago > -2) %>%
+  filter(days_ago > -31) %>%
   group_by(PermitType) %>%
   dplyr::summarize(count=n()) %>%
   arrange(-count)
@@ -413,7 +407,7 @@ Top_isd <- arrange(Top_isd, count)
 
 ## Map it
 forMap_isd <- isd %>%
-  filter(days_ago > -8, Latitude != 0) %>%
+  filter(days_ago > -31, Latitude != 0) %>%
   select(Latitude, Longitude, ProjectName, PermitAmount, Address, PermitTypeDetail, PermitType) %>% 
   mutate(PermitAmount = as.numeric(PermitAmount),
          Latitude = round(Latitude, 5),
@@ -425,13 +419,13 @@ forMap_isd <- isd %>%
 
 
 # Convert to geojson and put it on our server
-toGeoJSON(forMap_isd, "BuildingPermits", "./tmp/")
+toGeoJSON(forMap_isd, "BuildingPermits_monthly", "./tmp/")
 
 ftpUpload(what = "./tmp/BuildingPermits.geojson",
-          to = paste(Somerville_server, "BuildingPermits.geojson", sep = ""),
+          to = paste(Somerville_server, "BuildingPermits_monthly.geojson", sep = ""),
           verbose = TRUE,
           userpwd = Somerville_server_userpwd, 
-          prequote="CWD /var/www/dashboard/geo/daily/")
+          prequote="CWD /var/www/dashboard/geo/monthly/")
 
 
 
@@ -442,11 +436,11 @@ ftpUpload(what = "./tmp/BuildingPermits.geojson",
 # I first do a test for my testing environment, then full save
 library(knitr)
 
-knit("./daily.Rhtml", output = "./tmp/test-daily.html")
+knit("./monthly.Rhtml", output = "./tmp/test-monthly.html")
 
-# Upload to the daily dashboard
-ftpUpload(what = "./tmp/test-daily.html",
-          to = paste(Somerville_server, "test-daily.html", sep = ""),
+# Upload to the dashboard
+ftpUpload(what = "./tmp/test-monthly.html",
+          to = paste(Somerville_server, "test-monthly.html", sep = ""),
           verbose = TRUE,
           userpwd = Somerville_server_userpwd, 
           prequote="CWD /var/www/dashboard/")
@@ -454,11 +448,11 @@ ftpUpload(what = "./tmp/test-daily.html",
 
 
 
-knit("./daily.Rhtml", output = "./tmp/daily.html")
+knit("./monthly.Rhtml", output = "./tmp/monthly.html")
 
-# Upload to the daily dashboard
-ftpUpload(what = "./tmp/daily.html",
-          to = paste(Somerville_server, "daily.html", sep = ""),
+# Upload to the dashboard
+ftpUpload(what = "./tmp/monthly.html",
+          to = paste(Somerville_server, "monthly.html", sep = ""),
           verbose = TRUE,
           userpwd = Somerville_server_userpwd, 
           prequote="CWD /var/www/dashboard/")

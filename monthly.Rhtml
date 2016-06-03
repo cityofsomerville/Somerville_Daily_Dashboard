@@ -118,7 +118,7 @@ They load to the specified containers -->
         type: 'column'
         },
     title: {
-                text: 'Top 311 Calls Yesterday, <!--rinline I(format(Sys.Date() - 1, "%m-%d-%Y")) -->'
+                text: 'Top 311 Calls, <!--rinline I(format(Sys.Date() - 32, "%m-%d-%Y")) --> - <!--rinline I(format(Sys.Date() - 1, "%m-%d-%Y")) -->'
             },
          subtitle: {
                 text: 'Source: 311'
@@ -289,7 +289,7 @@ They load to the specified containers -->
         },
   yAxis: {
                 title: {
-                    text: 'Calls Per Week'
+                    text: 'Calls Per Month'
                 },
                 plotLines: [{
                     value: 0,
@@ -317,7 +317,7 @@ They load to the specified containers -->
       type: 'line'
         },
   title: {
-                text: 'Select Criminal Incidents By Week'
+                text: 'Select Criminal Incidents By Month'
         },
        subtitle: {
                 text: 'Source: Somerville Police'
@@ -328,7 +328,7 @@ They load to the specified containers -->
         },
   yAxis: {
                 title: {
-                    text: 'Calls Per Week'
+                    text: 'Calls Per Month'
                 },
                 plotLines: [{
                     value: 0,
@@ -359,7 +359,7 @@ They load to the specified containers -->
       type: 'line'
         },
   title: {
-                text: 'Quality of Life Calls By Week'
+                text: 'Quality of Life Calls By Month'
         },
        subtitle: {
                 text: 'Source: Somerville Police'
@@ -370,7 +370,7 @@ They load to the specified containers -->
         },
   yAxis: {
                 title: {
-                    text: 'Significant Calls Per Week'
+                    text: 'Significant Calls Per Month'
                 },
                 plotLines: [{
                     value: 0,
@@ -398,7 +398,7 @@ They load to the specified containers -->
         type: 'column'
         },
     title: {
-                text: 'Top Internally Generated Work, Last Week'
+                text: 'Top Internally Generated Work, Last Month'
             },
          subtitle: {
                 text: 'Source: 311'
@@ -472,7 +472,7 @@ They load to the specified containers -->
         type: 'column'
         },
     title: {
-                text: 'Top Permits and Licenses From Yesterday, <!--rinline I(format(Sys.Date() - 1, "%m-%d-%Y")) -->'
+                text: 'Top Permits and Licenses From Last Month, <!--rinline I(format(Sys.Date() - 32, "%m-%d-%Y")) --> - <!--rinline I(format(Sys.Date() - 1, "%m-%d-%Y")) -->'
             },
          subtitle: {
                 text: 'Source: Citizenserve'
@@ -533,7 +533,7 @@ They load to the specified containers -->
       <h1 class="section header">Hello</h1>
         <div class="row">
         <div class="span12">
-          <p>Welcome to the City of Somerville's daily dashboard. The current temperature on the <a href="http://understoryweather.com/">Somerville High roof</a> is <span id="remoteFeed"></span>. Below, you will find data used by the Mayor's Office to track important trends on a daily and weekly basis.</p>
+          <p>Welcome to the City of Somerville's daily dashboard. The current temperature on the <a href="http://understoryweather.com/">Somerville High roof</a> is <span id="remoteFeed"></span>. Below, you will find data used by the Mayor's Office to track important trends on a monthly basis.</p>
           <script type="text/javascript">
             $.get('https://reports.understoryweather.com/api/v1/data/base/somerville/update')
                 .done(function (data) {
@@ -553,7 +553,7 @@ They load to the specified containers -->
     <div class="marketing">
     	<div class="row-fluid">
     	  <h1 class="section header">311 Calls</h1>
-	       <p>Yesterday, the Somerville 311 line received <!--rinline I(formatC(nrow(Yesterday_cs))) --> calls from constituents, which is <!--rinline I(comparisonCS) -->. Access the full dataset <a href="https://data.somervillema.gov/311-Call-Center/311-Constituent-Services-Daily-Calls/vqwi-n3ah">here</a>.</p>
+	       <p>Over the last 30 days, the Somerville 311 line received <!--rinline I(formatC(nrow(last_month_cs), big.mark=",")) --> calls from constituents. Access the full dataset <a href="https://data.somervillema.gov/311-Call-Center/311-Constituent-Services-Daily-Calls/vqwi-n3ah">here</a>.</p>
 	    <div class="row">
     		<div class="span12">
     		    <div id="AllConstituentServicesContainer" style="width:100%; height:400px;"></div>
@@ -563,7 +563,7 @@ They load to the specified containers -->
       <br></br>
 
         <h3 class="section header">Significant Calls</h3>
-        <p>The chart above usually contains many of the same call types, which is why we track calls that increase more than average. During the last seven days, there was an increase in calls for <FONT COLOR="#2f7ed8"><!--rinline I(names(forChart_TopThree_cs[1])) --></FONT>, <FONT COLOR="#0d233a"><!--rinline I(names(forChart_TopThree_cs[2])) --></FONT>, and <FONT COLOR="#8bbc21"><!--rinline I(names(forChart_TopThree_cs[3])) --></FONT>. This chart shows calls of those types for the last 120 days, while the map shows their location for the last week.</p>
+        <p>The chart above usually contains many of the same call types, which is why we track calls that increase more than average. During the last 30 days, there was an increase in calls for <FONT COLOR="#2f7ed8"><!--rinline I(names(forChart_TopThree_cs[1])) --></FONT>, <FONT COLOR="#0d233a"><!--rinline I(names(forChart_TopThree_cs[2])) --></FONT>, and <FONT COLOR="#8bbc21"><!--rinline I(names(forChart_TopThree_cs[3])) --></FONT>. This chart shows calls of those types for the last 12 months, while the map shows their location for the 30 days.</p>
         <div class="row">
         <div class="span6">
           <div id="TopThreeTSChartContainer" style="width:100%; height:400px;"></div>
@@ -613,7 +613,7 @@ They load to the specified containers -->
 
               $.ajax({
               dataType: "json",
-              url: "./geo/daily/UniqueCS.geojson",
+              url: "./geo/monthly/UniqueCS_monthly.geojson",
               success: function (response) {
                     geojsonLayer = L.geoJson(response, {
                       pointToLayer: pointToLayerU,
@@ -643,7 +643,7 @@ They load to the specified containers -->
 
         <br></br>
 
-        <p>We also like to keep careful track of quality of life calls. Below are calls about <FONT COLOR="#2f7ed8">graffiti</FONT>, <FONT COLOR="#0d233a">rats</FONT>, and <FONT COLOR="#8bbc21">potholes</FONT>. As before, the map show calls from the last week, and the time-series chart show the last 120 days.</p>
+        <p>We also like to keep careful track of quality of life calls. Below are calls about <FONT COLOR="#2f7ed8">graffiti</FONT>, <FONT COLOR="#0d233a">rats</FONT>, and <FONT COLOR="#8bbc21">potholes</FONT>. As before, the map show calls from the last month, and the time-series chart show the last year.</p>
         <div class="row">
           <div class="span6">
             <div id="QoLTSChartContainer" style="width:100%; height:400px;"></div>
@@ -692,7 +692,7 @@ They load to the specified containers -->
 
               $.ajax({
               dataType: "json",
-              url: "./geo/daily/QualityOfLifeCS.geojson",
+              url: "./geo/monthly/QualityOfLifeCS_monthly.geojson",
               success: function (response) {
                     geojsonLayer = L.geoJson(response, {
                       pointToLayer: pointToLayer,
@@ -709,13 +709,13 @@ They load to the specified containers -->
           <h3 class="section header">Internally Generated Work</h3>
           <div class="row">
             <div class="span6">
-              <p>At the same time that they respond to 311 calls, city workers are also proactive about finding work that needs to be done, reporting it, and completing it. This chart shows the top 5 work orders that were internally generated from the last seven days. In addition, here are the three internal work orders that increased the most over average:</p>
+              <p>At the same time that they respond to 311 calls, city workers are also proactive about finding work that needs to be done, reporting it, and completing it. This chart shows the top 5 work orders that were internally generated from the last 30 days. In addition, here are the three internal work orders that increased the most over average:</p>
               <table class="table table-hover">
                       <thead>
                           <tr>
                               <th>Work Order Type</th>
-                              <th># Generated Last Wk</th>
-                              <th>Avg/Wk</th>
+                              <th># Generated Last Month</th>
+                              <th>Avg/Month</th>
                               <th>% Increase</th>
                           </tr>
                       </thead>
@@ -757,7 +757,7 @@ They load to the specified containers -->
     <div class="row-fluid">
       <h1 class="section header">Public Safety</h1>
       <h3 class="section header">Criminal Incidents</h3>
-      <p>Below are data about <FONT COLOR="#2f7ed8">burglary</FONT>, <FONT COLOR="#0d233a">motor vehicle theft</FONT>, <FONT COLOR="#910000">theft from a motor vehicle</FONT>, and <FONT COLOR="#8bbc21">robbery</FONT>. In this case, the map shows incidents from the last fourteen days, and the time-series chart show the last 120 days by week. Access the raw data <a href="https://data.somervillema.gov/Public-Safety/Police-Selected-Criminal-Incidents/4jey-jqxb">here</a></p>
+      <p>Below are data about <FONT COLOR="#2f7ed8">burglary</FONT>, <FONT COLOR="#0d233a">motor vehicle theft</FONT>, <FONT COLOR="#910000">theft from a motor vehicle</FONT>, and <FONT COLOR="#8bbc21">robbery</FONT>. In this case, the map shows incidents from the 30 days, and the time-series chart show the last year by month. Access the raw data <a href="https://data.somervillema.gov/Public-Safety/Police-Selected-Criminal-Incidents/4jey-jqxb">here</a></p>
         <div class="row">
         <div class="span6">
             <div id="CI_TS_ChartContainer" style="width:100%; height:400px;"></div>
@@ -808,7 +808,7 @@ They load to the specified containers -->
 
               $.ajax({
               dataType: "json",
-              url: "./geo/daily/PoliceCI.geojson",
+              url: "./geo/monthly/PoliceCI_monthly.geojson",
               success: function (response) {
                     geojsonLayer = L.geoJson(response, {
                       pointToLayer: pointToLayerP,
@@ -823,7 +823,7 @@ They load to the specified containers -->
         <br></br>
 
         <h3 class="section header">Significant Quality of Life Calls</h3>
-        <p>The Police Department also receives calls about quality of life issues. During the last seven days, there was an increase (or less of a decrease) in calls for <FONT COLOR="#2f7ed8"><!--rinline I(names(forChart_TopThree_qol[1])) --></FONT>, <FONT COLOR="#0d233a"><!--rinline I(names(forChart_TopThree_qol[2])) --></FONT>, and <FONT COLOR="#8bbc21"><!--rinline I(names(forChart_TopThree_qol[3])) --></FONT>. This chart shows calls of those types for the last 120 days, while the map shows their location for the last two weeks.</p>
+        <p>The Police Department also receives calls about quality of life issues. During the last 30 days, there was an increase (or less of a decrease) in calls for <FONT COLOR="#2f7ed8"><!--rinline I(names(forChart_TopThree_qol[1])) --></FONT>, <FONT COLOR="#0d233a"><!--rinline I(names(forChart_TopThree_qol[2])) --></FONT>, and <FONT COLOR="#8bbc21"><!--rinline I(names(forChart_TopThree_qol[3])) --></FONT>. This chart shows calls of those types for the last year, while the map shows their location for the last month.</p>
         <div class="row">
           <div class="span6">
             <div id="QOL_TS_ChartContainer" style="width:100%; height:400px;"></div>
@@ -873,7 +873,7 @@ They load to the specified containers -->
 
               $.ajax({
               dataType: "json",
-              url: "./geo/daily/PoliceQOL.geojson",
+              url: "./geo/monthly/PoliceQOL_monthly.geojson",
               success: function (response) {
                     geojsonLayer = L.geoJson(response, {
                       pointToLayer: pointToLayerQOL,
@@ -911,7 +911,7 @@ They load to the specified containers -->
     <div class="marketing">
     <div class="row-fluid">
       <h1 class="section header">Permits and Licenses</h1>
-      <p>Below are data on the top permit and license applications from yesterday and a map of them from the last week. Dots on the map are sized based on the cost of the permit, which is a function of the amount of work being done. You can click on the dot to see whether it is a building permit or one of the other types issued by ISD, e.g., electrical, gas, or plumbing. Access the full dataset <a href="https://data.somervillema.gov/dataset/ISD-Building-Permit-Daily-Applications/q3yh-mp87">here</a>.</p>
+      <p>Below are data on the top permit and license applications from the last 30 days. Dots on the map are sized based on the cost of the permit, which is a function of the amount of work being done. You can click on the dot to see whether it is a building permit or one of the other types issued by ISD, e.g., electrical, gas, or plumbing. Access the full dataset <a href="https://data.somervillema.gov/dataset/ISD-Building-Permit-Daily-Applications/q3yh-mp87">here</a>.</p>
         <div class="row">
         <div class="span6">
             <div id="ISDBuildingContainer" style="width:100%; height:400px;"></div>
@@ -963,7 +963,7 @@ They load to the specified containers -->
 
             $.ajax({
             dataType: "json",
-            url: "./geo/daily/BuildingPermits.geojson",
+            url: "./geo/monthly/BuildingPermits_monthly.geojson",
             success: function (response) {
                   geojsonLayer = L.geoJson(response, {
                     pointToLayer: pointToLayerISD,
