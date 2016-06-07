@@ -530,17 +530,10 @@ They load to the specified containers -->
 <div class="container">
     <div class="marketing">
     <div class="row-fluid">
-      <h1 class="section header">Hello</h1>
+      <h1 class="section header">Monthly</h1>
         <div class="row">
         <div class="span12">
-          <p>Welcome to the City of Somerville's daily dashboard. The current temperature on the <a href="http://understoryweather.com/">Somerville High roof</a> is <span id="remoteFeed"></span>. Below, you will find data used by the Mayor's Office to track important trends on a monthly basis.</p>
-          <script type="text/javascript">
-            $.get('https://reports.understoryweather.com/api/v1/data/base/somerville/update')
-                .done(function (data) {
-                var temp = data[0].shtTemp * 1.8 + 32; //Convert from Celsius
-                $("#remoteFeed").text(Math.round(temp) + "\u00b0F");
-            });
-          </script>
+          <p>This is the monthly version of the City of Somerville's data dashboard. The data is updated daily, but displayed in 30-day periods. For trends on the daily and weekly level, please see the <a href="http://www.somervillema.gov/dashboard/daily.html">daily dashboard</a>.</p>
         </div>
         </div>
     </div>
@@ -885,22 +878,6 @@ They load to the specified containers -->
           </div>
         </div>
 
-    </div>
-    </div>
-</div>
-
-
-<!-- Google Analytics -->
-<div class="container">
-    <div class="marketing">
-    <div class="row-fluid">
-      <h1 class="section header">Website Analytics</h1>
-      <p><a href="http://www.somervillema.gov/"> The City's official website </a> received <!--rinline I(sum(ga.df$pageviews)) --> pageviews yesterday.</p>
-        <div class="row">
-        <div class="span12">
-            <div id="GoogleAnalyticsContainer" style="width:100%; height:400px;"></div>
-        </div>
-        </div>
     </div>
     </div>
 </div>
