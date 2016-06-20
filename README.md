@@ -2,7 +2,7 @@
 Analyzes data and makes dynamic charts, graphs, and maps for http://www.somervillema.gov/dashboard/daily.html
 
 ## Idea
-Basically, this crunches the data and 'knits' it into an HTML file using knitr. The HTML relies on highcharts for the charts and leaflet for the maps. Also, it uploads the HTML and geojson files to our production server. 
+Basically, this crunches the data and 'knits' it into an HTML file using knitr. The HTML relies on highcharts for the charts and leaflet for the maps. Also, it uploads the HTML and geojson files to our production server 
 
 For the theory and another working example, see http://danielphadley.com/How-To-Dashboard-R/
 
