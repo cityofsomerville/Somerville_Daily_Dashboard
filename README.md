@@ -35,6 +35,3 @@ For the theory and another working example, see http://danielphadley.com/How-To-
 + ~~Weather~~
 
 
-## Monthly data
-
-## SPI
