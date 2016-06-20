@@ -11,6 +11,14 @@ For the theory and another working example, see http://danielphadley.com/How-To-
 2. The "Actions" is "start a program," which points to the .bat file in this directory
 3. The .bat file runs the .R script, which uploads the data to our web server through FTP
 
+## How to transfer to another machine
+1. Use github to get the latest version, which should be current on the official Somerville account
+2. Change the file paths in all R scripts and .bat files to reflect your desktop environment
+3. Copy the config.R file from the current maintainer (this is not commited in Github)
+4. Install all of the R packages listed in each script
+5. Follow the instruction above to automate 
+6. Profit 
+
 # TODO
 + ~~Refactor and clean code~~
 + ~~Make sure all NAs in charts get replaced with 0s~~
@@ -19,24 +27,13 @@ For the theory and another working example, see http://danielphadley.com/How-To-
 + ~~Make tracking weekly, rather than monthly~~
 + ~~Top internally-generated work orders~~
 + ~~Scrub every comment of weird characters before turning to geojson~~
-+ Find a better viz for the temperature
 + ~~Make tracking based on some measure of statistical significance~~
 + ~~Try to do charts by 7 day periods, or at least label the x-axis by max(date)~~  
 + ~~Seperate DPW driven from work requests~~
 + ~~Top three increases map and chart from top 25~~
 + ~~Map of top building permits~~
-+ Links to top new website anomalies
-+ see about different colors for ones not normally in the top 10
-+ T&P
-+ Crime
-+ Call forecasting - new feature
 + ~~Weather~~
-## Actionable data:
-+ Average time to completion vs. This week: DPW
-+ Percent completed average vs this week DPW
-+ Largest change in ratio of on-time as gauge graph
-+ Largest change in ratio of open to close
-+ Histogram for selected work order
+
 
 ## Monthly data
 
