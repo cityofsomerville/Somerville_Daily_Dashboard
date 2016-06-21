@@ -9,7 +9,7 @@
 
 
 ## working Directory, packages, and variables for the dates ##
-setwd("c:/Users/dhadley/Documents/GitHub/Somerville_Daily_Dashboard/")
+setwd("/Users/mmastrobuoni.CH2SOM-MMASTROB/Documents/GitHub/Somerville_Daily_Dashboard/")
 
 # This pulls in the credentials you need
 # And the dashboard function made by DH
