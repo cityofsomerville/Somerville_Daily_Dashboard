@@ -33,11 +33,11 @@ yesterday <- today - 1
 
 
 
-############## Police ############### 
+############## Police ###############
 
 ## Read Data and make new Variables ##
-ci <- read.csv("//fileshare1/Departments2/Somerstat Data/Police/daily/data_pipeline_pls_dont_use/CriminalIncidents.csv")
-qol <- read.csv("//fileshare1/Departments2/Somerstat Data/Police/daily/data_pipeline_pls_dont_use/QualityOfLife.csv")
+ci <- read.csv("//cos-chb-share1/Somerstat Data/Police/daily/data_pipeline_pls_dont_use/CriminalIncidents.csv")
+qol <- read.csv("//cos-chb-share1/Somerstat Data/Police/daily/data_pipeline_pls_dont_use/QualityOfLife.csv")
 
 
 # Clean
@@ -58,17 +58,17 @@ qol$inctype <- tolower(qol$inctype)
 TimeSeries_ci <- make_x_day_ts_multiple_v(ci, "Date", 7, "offense")
 
 # Get it down to about 17 weeks and format a couple things
-TimeSeries_ci <- TimeSeries_ci %>% 
-  tail(17) %>% 
-  mutate(period_ending = format(period_ending, format = "%b %d")) %>% 
+TimeSeries_ci <- TimeSeries_ci %>%
+  tail(17) %>%
+  mutate(period_ending = format(period_ending, format = "%b %d")) %>%
   data.frame() # the other format was throwing off printing
 
 
 
 ## CI map
-forMap_ci <- ci %>% 
-  filter(days_ago > -15 & X != "" & X != 0) %>% 
-  select(Y, X, offense, Date) %>% 
+forMap_ci <- ci %>%
+  filter(days_ago > -15 & X != "" & X != 0) %>%
+  select(Y, X, offense, Date) %>%
   rename(latitude = Y, longitude = X)
 
 # Convert and upload to our server
@@ -77,7 +77,7 @@ toGeoJSON(forMap_ci, "PoliceCI", "./tmp/")
 ftpUpload(what = "./tmp/PoliceCI.geojson",
           to = paste(Somerville_server, "PoliceCI.geojson", sep = ""),
           verbose = TRUE,
-          userpwd = Somerville_server_userpwd, 
+          userpwd = Somerville_server_userpwd,
           prequote="CWD /var/www/dashboard/geo/daily/")
 
 
@@ -93,11 +93,11 @@ unique_qol_top_three <- c(as.character(qol_increases$v_names[1]),
                          as.character(qol_increases$v_names[3]))
 
 # We use this to build the gauges and maps too
-TopThreeIncreases_qol_all <- qol %>% 
-  filter(inctype %in% unique_qol_top_three) 
+TopThreeIncreases_qol_all <- qol %>%
+  filter(inctype %in% unique_qol_top_three)
 
 TopThreeIncreases_qol <- TopThreeIncreases_qol_all %>%
-  select(Y, X, inctype, Date, days_ago) %>% 
+  select(Y, X, inctype, Date, days_ago) %>%
   rename(latitude = Y, longitude = X)
 
 
@@ -106,17 +106,17 @@ TopThreeIncreases_qol <- TopThreeIncreases_qol_all %>%
 forChart_TopThree_qol <- make_x_day_ts_multiple_v(TopThreeIncreases_qol_all, "Date", x_days = 7, "inctype")
 
 # clean up
-forChart_TopThree_qol <- forChart_TopThree_qol %>% 
-  tail(17) %>% 
-  mutate(Date_max = format(period_ending, format = "%b %d")) %>% 
-  data.frame(check.names = FALSE) # the other format was throwing off printing 
+forChart_TopThree_qol <- forChart_TopThree_qol %>%
+  tail(17) %>%
+  mutate(Date_max = format(period_ending, format = "%b %d")) %>%
+  data.frame(check.names = FALSE) # the other format was throwing off printing
 
 
 # Then the Map
 forMap_qol <- TopThreeIncreases_qol %>%
-  mutate(latitude = as.numeric(as.character(latitude))) %>% 
+  mutate(latitude = as.numeric(as.character(latitude))) %>%
   filter(days_ago > -15 & latitude != "") %>%
-  filter(latitude != 0) %>% 
+  filter(latitude != 0) %>%
   select(-days_ago)
 
 
@@ -126,7 +126,7 @@ toGeoJSON(forMap_qol, "PoliceQOL", "./tmp/")
 ftpUpload(what = "./tmp/PoliceQOL.geojson",
           to = paste(Somerville_server, "PoliceQOL.geojson", sep = ""),
           verbose = TRUE,
-          userpwd = Somerville_server_userpwd, 
+          userpwd = Somerville_server_userpwd,
           prequote="CWD /var/www/dashboard/geo/daily/")
 
 
@@ -136,7 +136,7 @@ ftpUpload(what = "./tmp/PoliceQOL.geojson",
 ############## 311 ############### 
 
 ## Read Data and make new Variables ##
-cs <- read.csv("//fileshare1/Departments2/Somerstat Data/Constituent_Services/data/data_pipeline_pls_dont_use/311_Somerville.csv")
+cs <- read.csv("//cos-chb-share1/Somerstat Data/Constituent_Services/data/data_pipeline_pls_dont_use/311_Somerville.csv")
 
 
 # returns string w/o leading or trailing whitespace
@@ -370,7 +370,7 @@ top_three_increases_internal_cs <- sort_by_ts_statistical_growth(cs_internal, "D
 
 ############## Web Analytics ##############
 
-ga.df <- read.csv("//fileshare1/Departments2/Somerstat Data/Website_Analytics/data_pipeline_pls_dont_use/LastTwentyFour.csv")
+ga.df <- read.csv("//cos-chb-share1/Somerstat Data/Website_Analytics/data_pipeline_pls_dont_use/LastTwentyFour.csv")
 
 TopFifteen_ga <- ga.df %>%
   filter(pageTitle != "City of Somerville, Massachusetts" & 
@@ -389,7 +389,7 @@ TopFifteen_ga <- arrange(TopFifteen_ga, pageviews)
 
 ############## Citizenserve ##############
 
-isd <- read.csv("//fileshare1/Departments2/Somerstat Data/Inspectional_Services/data/data_pipeline_pls_dont_use/Daily_Permits.csv")
+isd <- read.csv("//cos-chb-share1/Somerstat Data/Inspectional_Services/data/data_pipeline_pls_dont_use/Daily_Permits.csv")
 
 # More dates
 isd$Date <- as.Date(isd$IssueDate, "%m/%d/%Y")
